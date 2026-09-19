@@ -1,203 +1,120 @@
-# Airport Distance Calculator | APIVerve API Tutorial
+# Airport Distance Calculator | APIVerve Template
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Build](https://img.shields.io/badge/Build-Passing-brightgreen.svg)]()
-[![Python](https://img.shields.io/badge/Python-3.8+-3776ab)](https://python.org)
-[![APIVerve | Airport Distance](https://img.shields.io/badge/APIVerve-Airport_Distance-purple)](https://apiverve.com/marketplace/airportdistance?utm_source=github&utm_medium=tutorial&utm_campaign=airport-distance-python-tutorial)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB)](requirements.txt) [![Flask](https://img.shields.io/badge/Flask-3-000000)](app.py)
+[![APIVerve | Airport Distance](https://img.shields.io/badge/APIVerve-Airport_Distance-purple)](https://apiverve.com/marketplace/airportdistance?utm_source=github&utm_medium=template&utm_campaign=airport-distance-python-tutorial)
 
-A Python CLI tool to calculate the distance between any two airports. Enter IATA codes and get the distance in miles and kilometers, plus detailed airport information.
+The distance and flight time between any two airports, from their 3-letter codes. A web app you can deploy, and a command-line tool.
 
-![Screenshot](https://raw.githubusercontent.com/apiverve/airport-distance-python-tutorial/main/screenshot.jpg)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fapiverve%2Fairport-distance-python-tutorial&project-name=airport-distance&repository-name=airport-distance&env=APIVERVE_API_KEY&envDescription=Your%20APIVerve%20API%20key.%20Free%20to%20create%2C%20no%20card%20needed.&envLink=https%3A%2F%2Fdashboard.apiverve.com%2Fsignup%3Fapi%3Dairportdistance%26utm_source%3Dvercel%26utm_medium%3Dtemplate%26utm_campaign%3Dairport-distance-python-tutorial)
 
----
-
-### Get Your Free API Key
-
-This tutorial requires an APIVerve API key. **[Sign up free](https://dashboard.apiverve.com?utm_source=github&utm_medium=tutorial&utm_campaign=airport-distance-python-tutorial)** - no credit card required.
+![Airport Distance Calculator showing JFK to LAX](https://raw.githubusercontent.com/apiverve/airport-distance-python-tutorial/main/screenshot.png)
 
 ---
 
-## Features
+### Get your free API key
 
-- Calculate distance between any two airports
-- Distance in miles and kilometers
-- Detailed airport information
-- IATA and ICAO codes
-- City, state, country data
-- Elevation and coordinates
-- Estimated flight time
-- Popular route presets
+This template needs an APIVerve API key. **[Sign up free](https://dashboard.apiverve.com/signup?api=airportdistance&utm_source=github&utm_medium=template&utm_campaign=airport-distance-python-tutorial)**, no credit card required.
 
-## Quick Start
+---
 
-1. **Clone this repository**
+## Deploy in one click
+
+Click **Deploy with Vercel** above. Vercel copies this repo to your GitHub account, asks for your `APIVERVE_API_KEY`, and gives you a live URL about a minute later.
+
+## Run it locally
+
+1. **Clone the repository**
    ```bash
    git clone https://github.com/apiverve/airport-distance-python-tutorial.git
    cd airport-distance-python-tutorial
    ```
 
-2. **Install dependencies**
+2. **Install the dependencies**
    ```bash
+   python -m venv .venv
+   source .venv/bin/activate      # Windows: .venv\Scripts\activate
    pip install -r requirements.txt
    ```
 
-3. **Set your API key**
+3. **Add your API key**
    ```bash
-   export APIVERVE_API_KEY=your-api-key-here
+   cp .env.example .env
+   ```
+   Then open `.env` and set `APIVERVE_API_KEY`.
+
+4. **Start it**
+   ```bash
+   python app.py
    ```
 
-4. **Run the calculator**
-   ```bash
-   python distance.py
-   ```
+5. **Open** `http://localhost:3000`
 
-## Project Structure
+`python app.py` serves the page and the API route together, so you don't need the Vercel CLI.
 
-```
-airport-distance-python-tutorial/
-├── distance.py         # Main Python script
-├── requirements.txt    # Python dependencies
-├── screenshot.jpg      # Preview image
-├── LICENSE             # MIT license
-├── .gitignore          # Git ignore rules
-└── README.md           # This file
+## Use it from the command line
+
+```bash
+python distance.py JFK LAX
 ```
 
-## How It Works
+Run it with no arguments to be prompted instead. It reads the same `.env` as the web app.
 
-1. Enter two IATA airport codes
-2. API looks up both airports
-3. Calculates great-circle distance
-4. Returns full airport details
+## How it works
 
-### The API Call
+1. The page (`public/index.html`) calls `GET /api/distance?from=JFK&to=LAX`.
+2. `app.py` checks both codes are 3 letters, then calls Airport Distance. Your API key stays on the server and never reaches the browser.
+3. The page shows the result.
+
+```
+├── app.py             # Flask app: the /api/distance route, which holds your key
+├── apiverve.py        # Shared by app.py and distance.py: the key, the APIVerve call, the rate limit
+├── distance.py        # The command-line version
+├── public/            # The page: index.html, app.js, ui.js, style.css
+├── requirements.txt   # flask, requests
+├── .python-version    # 3.12, for Vercel
+└── .env.example       # Copy to .env and add your key
+```
+
+### The API call
 
 ```python
-response = requests.get('https://api.apiverve.com/v1/airportdistance',
-    headers={'x-api-key': API_KEY},
-    params={
-        'airport1': 'JFK',
-        'airport2': 'LAX'
-    }
+res = requests.get(
+    'https://api.apiverve.com/v1/airportdistance',
+    params={'iata1': 'JFK', 'iata2': 'LAX'},
+    headers={'x-api-key': os.environ['APIVERVE_API_KEY']},
 )
+data = res.json()['data']
+# data['distanceMiles'], data['distanceKm'], data['estimatedFlightTime']
 ```
 
-## API Reference
+Some response fields are for paid plans and come back empty on the free plan. The page shows whatever it gets and leaves the rest out, so it works on every plan.
 
-**Endpoint:** `GET https://api.apiverve.com/v1/airportdistance`
+## Before you share your URL
 
-**Query Parameters:**
+Once deployed, anyone who finds your URL can use it on your API key. Each visitor can make 10 requests a minute, which is fine for a demo. The limit is kept in memory, so it isn't shared between serverless instances. For production:
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `airport1` | string | Yes | First airport IATA code |
-| `airport2` | string | Yes | Second airport IATA code |
+- Put the page behind your own sign-in, or
+- Move the limit to a shared store such as [Upstash Redis](https://upstash.com/), or
+- Call the route only from your own backend.
 
-**Example Response:**
+## Ideas to extend it
 
-```json
-{
-  "status": "ok",
-  "error": null,
-  "data": {
-    "distanceMiles": 2470.23,
-    "distanceKm": 3974.2,
-    "airport1": {
-      "name": "John F Kennedy International Airport",
-      "iata": "JFK",
-      "icao": "KJFK",
-      "city": "New York",
-      "state": "New-York",
-      "country": "US",
-      "elevation": 13,
-      "latitude": 40.63980103,
-      "longitude": -73.77890015
-    },
-    "airport2": {
-      "name": "Los Angeles International Airport",
-      "iata": "LAX",
-      "icao": "KLAX",
-      "city": "Los Angeles",
-      "state": "California",
-      "country": "US",
-      "elevation": 125,
-      "latitude": 33.94250107,
-      "longitude": -118.4079971
-    }
-  }
-}
-```
+- Show the distance on a flight search or booking page
+- Estimate travel emissions for trip reports
+- Look up the airports themselves with [Airports Lookup](https://apiverve.com/marketplace/airports?utm_source=github&utm_medium=template&utm_campaign=airport-distance-python-tutorial)
 
-## Airport Data Fields
+## API reference
 
-| Field | Description |
-|-------|-------------|
-| `name` | Full airport name |
-| `iata` | 3-letter IATA code |
-| `icao` | 4-letter ICAO code |
-| `city` | City name |
-| `state` | State/province/region |
-| `country` | Country code |
-| `elevation` | Elevation in feet |
-| `latitude` | Latitude coordinate |
-| `longitude` | Longitude coordinate |
+- [Airport Distance](https://apiverve.com/marketplace/airportdistance?utm_source=github&utm_medium=template&utm_campaign=airport-distance-python-tutorial): `GET https://api.apiverve.com/v1/airportdistance?iata1=&iata2=`
+- [Full documentation](https://docs.apiverve.com?utm_source=github&utm_medium=template&utm_campaign=airport-distance-python-tutorial)
 
-## Popular Routes
+## Tech stack
 
-| Route | Distance |
-|-------|----------|
-| JFK → LAX | 2,470 miles |
-| LHR → JFK | 3,451 miles |
-| SFO → NRT | 5,130 miles |
-| DXB → SIN | 3,637 miles |
-| SYD → LAX | 7,488 miles |
-
-## Common IATA Codes
-
-| Code | Airport |
-|------|---------|
-| JFK | New York JFK |
-| LAX | Los Angeles |
-| LHR | London Heathrow |
-| CDG | Paris Charles de Gaulle |
-| NRT | Tokyo Narita |
-| DXB | Dubai |
-| SIN | Singapore Changi |
-| SYD | Sydney |
-| ORD | Chicago O'Hare |
-| ATL | Atlanta |
-
-## Customization Ideas
-
-- Add route visualization on map
-- Calculate carbon emissions
-- Compare multiple routes
-- Find nearest airports
-- Build flight search
-- Add layover calculations
-
-## Related APIs
-
-Explore more APIs at [APIVerve](https://apiverve.com/marketplace?utm_source=github&utm_medium=tutorial&utm_campaign=airport-distance-python-tutorial):
-
-- [Airports Lookup](https://apiverve.com/marketplace/airportslookup?utm_source=github&utm_medium=tutorial&utm_campaign=airport-distance-python-tutorial) - Search airports
-- [Airline Lookup](https://apiverve.com/marketplace/airlinelookup?utm_source=github&utm_medium=tutorial&utm_campaign=airport-distance-python-tutorial) - Airline information
-- [Distance Calculator](https://apiverve.com/marketplace/distancecalculator?utm_source=github&utm_medium=tutorial&utm_campaign=airport-distance-python-tutorial) - General distance calc
-
-## Free Plan Note
-
-This tutorial works with the free APIVerve plan. Some APIs may have:
-- **Locked fields**: Premium response fields return `null` on free plans
-- **Ignored parameters**: Some optional parameters require a paid plan
-
-The API response includes a `premium` object when limitations apply. [Upgrade anytime](https://dashboard.apiverve.com/plans) to unlock all features.
+- **Flask** for the API route, with **requests** to call APIVerve (Python 3.12)
+- Plain HTML, CSS and JavaScript for the page: no framework and no build step
+- Deploys to Vercel as-is: `app.py` becomes a Python function and `public/` is served from the CDN
 
 ## License
 
-MIT - see [LICENSE](LICENSE)
-
-## Links
-
-- [Get API Key](https://dashboard.apiverve.com?utm_source=github&utm_medium=tutorial&utm_campaign=airport-distance-python-tutorial) - Sign up free
-- [APIVerve Marketplace](https://apiverve.com/marketplace?utm_source=github&utm_medium=tutorial&utm_campaign=airport-distance-python-tutorial) - Browse 300+ APIs
-- [Airport Distance API](https://apiverve.com/marketplace/airportdistance?utm_source=github&utm_medium=tutorial&utm_campaign=airport-distance-python-tutorial) - API details
+MIT. See [LICENSE](LICENSE).

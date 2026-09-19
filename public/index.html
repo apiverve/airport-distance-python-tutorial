@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Airport Distance Calculator</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Airport Distance Calculator</h1>
+      <p>The distance and flight time between any two airports.</p>
+    </header>
+
+    <section class="card">
+      <form id="form">
+        <div class="row three">
+          <label>From
+            <input id="from" class="code" maxlength="3" placeholder="JFK" autocomplete="off" required>
+          </label>
+          <button type="button" id="swap" class="ghost" aria-label="Swap airports">⇄</button>
+          <label>To
+            <input id="to" class="code" maxlength="3" placeholder="LAX" autocomplete="off" required>
+          </label>
+        </div>
+        <div class="chips" id="routes" aria-label="Popular routes"></div>
+        <button id="go">Calculate distance</button>
+      </form>
+      <div id="result" aria-live="polite"></div>
+    </section>
+
+    <footer>Built with <a href="https://apiverve.com/marketplace/airportdistance">Airport Distance API</a> from APIVerve</footer>
+  </main>
+</body>
+</html>
