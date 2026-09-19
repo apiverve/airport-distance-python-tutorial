@@ -36,6 +36,7 @@ def api_error(err):
 def fail(message, status=400):
     return jsonify(error=message), status
 
+
 IATA = re.compile(r'^[A-Z]{3}$')
 
 
